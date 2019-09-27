@@ -67,7 +67,8 @@ int main() {
     pthread_attr_t tattr;
     pthread_t threads[4];
     int i, status;
-    int newprio = 20;
+    int newprio = 99;
+    int prio = 1;
     struct sched_param param;
 
     /* initialized with default attributes */
@@ -77,6 +78,12 @@ int main() {
 
     /* safe to get existing scheduling param */
     pthread_attr_getschedparam(&tattr, &param);
+
+    /* set the priority; others are unchanged */
+    param.sched_priority = newprio;
+
+    /* setting the new scheduling param */
+    pthread_attr_setschedparam(&tattr, &param);
 
 
     status = pthread_create(&threads[0], &tattr, taskThree, (void *) i);    //Create threads
@@ -91,10 +98,13 @@ int main() {
     }
 
     /* set the priority; others are unchanged */
-    param.sched_priority = newprio;
+    param.sched_priority = prio;
 
     /* setting the new scheduling param */
     pthread_attr_setschedparam(&tattr, &param);
+
+    pthread_join(threads[1],NULL);
+
     status = pthread_create(&threads[2], &tattr, taskOne, (void *) i);    //Create threads
     if (status != 0) {
         printf("While creating thread 3, pthread_create returned error code %d\n", status);
